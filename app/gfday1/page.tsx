@@ -62,22 +62,19 @@ const GfDayPage = () => {
       id: 2,
       text: "We look pretty cute together...",
       images: [
-        // === PLEASE UPDATE THESE DIMENSIONS ===
-        { src: '/gfday1/MJ0.jpg', alt: 'MJ0', width: 300, height: 450, fit: 'cover' }, // Example: taller photo
-        { src: '/gfday1/MJ1.jpg', alt: 'MJ1', width: 400, height: 300, fit: 'contain' }, // Example: wider photo, show all
-        { src: '/gfday1/MJ2.jpg', alt: 'MJ2', width: 350, height: 500, fit: 'cover' },
-        { src: '/gfday1/MJ3.jpg', alt: 'MJ3', width: 300, height: 400, fit: 'contain' },
-        { src: '/gfday1/MJ4.jpg', alt: 'MJ4', width: 500, height: 350, fit: 'cover' },
-        // === END OF PLACEHOLDER DIMENSIONS ===
+        { src: '/gfday1/MJ0.jpg', alt: 'MJ0', width: 4608, height: 3456, fit: 'contain' },
+        { src: '/gfday1/MJ1.jpeg', alt: 'MJ1', width: 4608, height: 3456, fit: 'contain' }, 
+        { src: '/gfday1/MJ2.PNG', alt: 'MJ2', width: 3840, height: 2560, fit: 'contain' },
+        { src: '/gfday1/MJ3.JPEG', alt: 'MJ3', width: 1200, height: 1600, fit: 'contain' },
+        // { src: '/gfday1/MJ4.HEIC', alt: 'MJ4', width: 3024, height: 4032, fit: 'contain' }, // Temporarily removed - HEIC not supported by default
+        // User needs to convert MJ4.HEIC to JPG or PNG and re-add with correct path and dimensions.
       ],
     },
     {
       id: 3,
       text: "I love you",
       images: [
-        // === PLEASE UPDATE THESE DIMENSIONS ===
-        { src: '/gfday1/Toes.jpg', alt: 'Toes photo', width: 400, height: 500, fit: 'contain' },
-        // === END OF PLACEHOLDER DIMENSIONS ===
+        { src: '/gfday1/toes.JPG', alt: 'Toes photo', width: 1242, height: 2208, fit: 'contain' },
       ],
     },
     {
@@ -95,36 +92,34 @@ const GfDayPage = () => {
 
 
   return (
-    <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black text-white font-playfair-display">
+    <div className="h-screen overflow-y-scroll bg-black text-white font-playfair-display">
       <audio ref={audioRef} src="/gfday1/sedona.mp3" loop />
 
       {scenes.map((scene, index) => (
         <section
           key={scene.id}
           ref={(el: HTMLElement | null) => { sceneRefs.current[index] = el; }}
-          className="h-screen flex flex-col justify-center items-center text-center snap-start p-5 relative overflow-hidden"
+          className="min-h-screen flex flex-col justify-center items-center text-center p-5 relative overflow-hidden"
         >
-          <AnimatedSceneContent isVisible={activeScene === index}>
+          <AnimatedSceneContent isVisible={activeScene === index || true}> {/* Always visible for continuous scroll, or activeScene === index for fade on view */} 
             <p className="text-4xl md:text-5xl lg:text-6xl mb-8 whitespace-pre-line leading-tight">
               {scene.text}
             </p>
             {scene.images.length > 0 && (
-              <div className="flex flex-wrap justify-center items-center gap-4 mb-8">
+              <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8 mb-8">
                 {scene.images.map((img, imgIndex) => (
                   <div 
                     key={imgIndex} 
                     className="rounded-lg overflow-hidden shadow-xl transform transition-all duration-500 hover:scale-105 bg-gray-800/50"
-                    // Set a fixed container size based on image width for better control with object-fit
-                    // You might want to adjust these container sizes based on your design
-                    style={{ width: img.width, height: img.height }} >
+                    style={{ width: 'clamp(250px, 30vw, 400px)', height: 'auto' }} 
+                  >
                     <Image 
                       src={img.src} 
                       alt={img.alt}
                       width={img.width} 
                       height={img.height}
-                      // Apply object-fit based on the 'fit' property or default to 'contain'
                       className={`w-full h-full ${img.fit === 'cover' ? 'object-cover' : 'object-contain'}`}
-                      priority={index < 2} // Prioritize images in early scenes
+                      priority={index < 2} 
                     />
                   </div>
                 ))}
