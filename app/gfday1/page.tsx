@@ -62,12 +62,11 @@ const GfDayPage = () => {
       id: 2,
       text: "We look pretty cute together...",
       images: [
-        { src: '/gfday1/MJ0.jpg', alt: 'MJ0', width: 4608, height: 3456, fit: 'contain' },
-        // { src: '/gfday1/MJ1.jpeg', alt: 'MJ1', width: 4608, height: 3456, fit: 'contain' }, // Temporarily commented out for debugging
+        { src: '/gfday1/MJ0.JPG', alt: 'MJO', width: 4608, height: 3456, fit: 'contain' },
+        { src: '/gfday1/MJ1.JPEG', alt: 'MJ1', width: 4608, height: 3456, fit: 'contain' },
         { src: '/gfday1/MJ2.PNG', alt: 'MJ2', width: 3840, height: 2560, fit: 'contain' },
         { src: '/gfday1/MJ3.JPEG', alt: 'MJ3', width: 1200, height: 1600, fit: 'contain' },
         { src: '/gfday1/MJ4.jpg', alt: 'MJ4', width: 3024, height: 4032, fit: 'contain' },
-        // User needs to convert MJ4.HEIC to JPG or PNG and re-add with correct path and dimensions.
       ],
     },
     {
