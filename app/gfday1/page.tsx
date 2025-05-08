@@ -73,7 +73,7 @@ const GfDayPage = () => {
       id: 3,
       text: "I love you",
       images: [
-        { src: '/gfday1/toes.JPG', alt: 'Toes photo', width: 1242, height: 2208, fit: 'contain' },
+        { src: '/gfday1/Toes.JPG', alt: 'Toes photo', width: 1242, height: 2208, fit: 'contain' },
       ],
     },
     {
