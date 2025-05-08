@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+// import ReactConfetti from 'react-confetti'; // Will add later for Yes button
 
 // Helper component for animated scene content
 const AnimatedSceneContent = ({ children, isVisible }: { children: React.ReactNode, isVisible: boolean }) => {
@@ -17,6 +18,15 @@ const GfDayPage = () => {
   const [activeScene, setActiveScene] = useState(0); // To track visible scene for animations
   const sceneRefs = useRef<(HTMLElement | null)[]>([]);
   const [showOverlay, setShowOverlay] = useState(true);
+
+  // State for "No" button outcome
+  const [noButtonClicked, setNoButtonClicked] = useState(false);
+  const [currentSnapImage, setCurrentSnapImage] = useState<'/gfday1/Snap0.PNG' | '/gfday1/Snap1.png' | null>(null);
+  const [snapImageOpacity, setSnapImageOpacity] = useState(0);
+  const snapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // State for "Yes" button outcome (confetti) - will implement later
+  // const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     // Audio will be triggered by user interaction via overlay
@@ -47,6 +57,9 @@ const GfDayPage = () => {
       currentSceneRefs.forEach(ref => {
         if (ref) observer.unobserve(ref);
       });
+      if (snapTimeoutRef.current) {
+        clearTimeout(snapTimeoutRef.current);
+      }
     };
   }, [showOverlay]); // Re-run effect if showOverlay changes
 
@@ -58,6 +71,36 @@ const GfDayPage = () => {
       });
     }
     setShowOverlay(false);
+  };
+
+  const handleNoClick = () => {
+    setNoButtonClicked(true);
+    setCurrentSnapImage('/gfday1/Snap0.PNG');
+    setSnapImageOpacity(1); // Snap0 becomes visible immediately
+
+    if (snapTimeoutRef.current) clearTimeout(snapTimeoutRef.current);
+
+    snapTimeoutRef.current = setTimeout(() => {
+      // Start fading out Snap0 after 1.5s (it was visible for 1.5s)
+      // For a 1.5s fade, we might need to use CSS transitions or an animation library for smoother control.
+      // This simple opacity change will be more abrupt for the fade itself.
+      // To achieve a smooth 1.5s fade, we'd set opacity to 0 here and rely on CSS transition property.
+      // For now, let's just swap the image after a delay.
+      // A true cross-fade is more complex with timed opacity changes on two images.
+      // This implementation will show Snap0, then Snap1 after a delay.
+      
+      // After Snap0 has been shown for 1.5s, switch to Snap1
+      setCurrentSnapImage('/gfday1/Snap1.png');
+      setSnapImageOpacity(1); // Snap1 becomes visible
+
+      // If you want Snap0 to fade out *while* Snap1 fades in, that requires two image elements
+      // and more complex opacity/timing management.
+    }, 1500); // Total time Snap0 is fully visible or starting to fade
+  };
+
+  const handleYesClick = () => {
+    alert('She said YES!!! 🎉❤️'); // Placeholder, will add confetti
+    // setShowConfetti(true);
   };
 
   // IMPORTANT: Update width and height for each image to its actual dimensions!
@@ -113,9 +156,26 @@ const GfDayPage = () => {
         </div>
       )}
 
+      {/* "No" Button Outcome Overlay */} 
+      {noButtonClicked && currentSnapImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-95 flex flex-col justify-center items-center z-40 p-4">
+          <Image 
+            key={currentSnapImage} // Key change to force re-render/transition if src changes
+            src={currentSnapImage}
+            alt={currentSnapImage === '/gfday1/Snap0.PNG' ? "Snap 0 - Oh no!" : "Snap 1 - Maybe next time!"}
+            width={currentSnapImage === '/gfday1/Snap0.PNG' ? 1170 : 1024}
+            height={currentSnapImage === '/gfday1/Snap0.PNG' ? 2532 : 1536}
+            className="object-contain max-w-full max-h-[80vh] rounded-lg shadow-xl transition-opacity duration-1500 ease-in-out"
+            style={{ opacity: snapImageOpacity }}
+            priority
+          />
+          {/* Optional: Add a message or a button to close this view eventually */}
+        </div>
+      )}
+
       <audio ref={audioRef} src="/gfday1/sedona.mp3" loop />
 
-      {!showOverlay && scenes.map((scene, index) => (
+      {!showOverlay && !noButtonClicked && scenes.map((scene, index) => (
         <section
           key={scene.id}
           ref={(el: HTMLElement | null) => { sceneRefs.current[index] = el; }}
@@ -149,13 +209,13 @@ const GfDayPage = () => {
               <div className="mt-10 space-x-6">
                 <button 
                   className="bg-green-500 hover:bg-green-600 text-white font-geist-sans font-bold py-3 px-8 rounded-lg text-xl transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg"
-                  onClick={() => alert('She said YES!!! 🎉❤️')}
+                  onClick={handleYesClick}
                 >
                   Yes
                 </button>
                 <button 
                   className="bg-red-500 hover:bg-red-600 text-white font-geist-sans font-bold py-3 px-8 rounded-lg text-xl transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg"
-                  onClick={() => alert('Maybe next time... 😢')}
+                  onClick={handleNoClick}
                 >
                   No
                 </button>
