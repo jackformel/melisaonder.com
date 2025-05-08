@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basic body styling can be kept if preferred, 
+   but most styling is now handled by Tailwind classes in the components. */
+body {
+  /* font-family is set in layout.tsx with Inter font */
+  /* background-color and color are set in layout.tsx */
+  letter-spacing: -0.011em;
+  @apply antialiased; /* This is also in layout.tsx, but keeping it here is fine */
+}
+
+/* Removed .photo-grid and dark mode styles as they are no longer used 
+   or are handled by Tailwind utility classes directly in the components. */ 
