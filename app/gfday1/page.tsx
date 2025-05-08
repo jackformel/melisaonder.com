@@ -16,14 +16,11 @@ const GfDayPage = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [activeScene, setActiveScene] = useState(0); // To track visible scene for animations
   const sceneRefs = useRef<(HTMLElement | null)[]>([]);
+  const [showOverlay, setShowOverlay] = useState(true);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(error => console.error("Audio play failed - user interaction might be needed:", error));
-    }
-
-    // Log scenes data to browser console for debugging image paths
-    // console.log("Scenes data for /gfday1:", JSON.stringify(scenes, null, 2)); // User added, keep for their debugging
+    // Audio will be triggered by user interaction via overlay
+    // console.log("Scenes data for /gfday1:", JSON.stringify(scenes, null, 2)); 
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -36,20 +33,32 @@ const GfDayPage = () => {
           }
         });
       },
-      { threshold: 0.5 } // Trigger when 50% of the scene is visible
+      { threshold: 0.5 } 
     );
 
     const currentSceneRefs = sceneRefs.current;
-    currentSceneRefs.forEach(ref => {
-      if (ref) observer.observe(ref);
-    });
+    if (!showOverlay) { // Only observe if overlay is hidden
+      currentSceneRefs.forEach(ref => {
+        if (ref) observer.observe(ref);
+      });
+    }
 
     return () => {
       currentSceneRefs.forEach(ref => {
         if (ref) observer.unobserve(ref);
       });
     };
-  }, []); // Removed scenes from dependency array as it's stable
+  }, [showOverlay]); // Re-run effect if showOverlay changes
+
+  const handleStartExperience = () => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(error => {
+        console.error("Audio play failed even after interaction:", error);
+        // Optionally, provide feedback to the user if audio still fails
+      });
+    }
+    setShowOverlay(false);
+  };
 
   // IMPORTANT: Update width and height for each image to its actual dimensions!
   const scenes = [
@@ -65,7 +74,7 @@ const GfDayPage = () => {
         { src: '/gfday1/MJ0.JPG', alt: 'MJO', width: 4608, height: 3456, fit: 'contain' },
         { src: '/gfday1/MJ1.JPEG', alt: 'MJ1', width: 4608, height: 3456, fit: 'contain' },
         { src: '/gfday1/MJ2.PNG', alt: 'MJ2', width: 3840, height: 2560, fit: 'contain' },
-        { src: '/gfday1/MJ3.JPEG', alt: 'MJ3', width: 1200, height: 1600, fit: 'contain' },
+        //{ src: '/gfday1/MJ3.JPEG', alt: 'MJ3', width: 1200, height: 1600, fit: 'contain' },
         { src: '/gfday1/MJ4.jpg', alt: 'MJ4', width: 3024, height: 4032, fit: 'contain' },
       ],
     },
@@ -91,16 +100,28 @@ const GfDayPage = () => {
 
 
   return (
-    <div className="h-screen overflow-y-scroll bg-black text-white font-playfair-display">
+    <div className="h-screen overflow-y-scroll bg-black text-white font-playfair-display relative">
+      {showOverlay && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex flex-col justify-center items-center z-50">
+          <h2 className="text-4xl font-playfair-display mb-8 text-white">A little something...</h2>
+          <button 
+            onClick={handleStartExperience}
+            className="bg-pink-500 hover:bg-pink-600 text-white font-geist-sans font-bold py-4 px-10 rounded-lg text-2xl transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-opacity-75"
+          >
+            Click to Begin
+          </button>
+        </div>
+      )}
+
       <audio ref={audioRef} src="/gfday1/sedona.mp3" loop />
 
-      {scenes.map((scene, index) => (
+      {!showOverlay && scenes.map((scene, index) => (
         <section
           key={scene.id}
           ref={(el: HTMLElement | null) => { sceneRefs.current[index] = el; }}
           className="min-h-screen flex flex-col justify-center items-center text-center p-5 relative overflow-hidden"
         >
-          <AnimatedSceneContent isVisible={activeScene === index || true}> {/* Always visible for continuous scroll, or activeScene === index for fade on view */} 
+          <AnimatedSceneContent isVisible={activeScene === index || true}> 
             <p className="text-4xl md:text-5xl lg:text-6xl mb-8 whitespace-pre-line leading-tight">
               {scene.text}
             </p>
