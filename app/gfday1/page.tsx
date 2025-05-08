@@ -2,7 +2,59 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-// import ReactConfetti from 'react-confetti'; // Will add later for Yes button
+
+// Simple Confetti Component using CSS animations
+const Confetti = () => {
+  // Generate 50 confetti particles
+  const particles = Array.from({ length: 50 }).map((_, i) => {
+    // Random confetti properties
+    const left = Math.random() * 100; // random position
+    const size = Math.random() * 0.8 + 0.4; // random size between 0.4 and 1.2rem
+    const duration = Math.random() * 3 + 2; // random animation duration between 2-5s
+    const delay = Math.random() * 0.5; // random delay for animation start
+    const color = ['#FF5E5B', '#D8D8D8', '#39B5E0', '#A084CF', '#FCFF4B', '#FF86C8'][
+      Math.floor(Math.random() * 6)
+    ]; // random color from array
+
+    return (
+      <div
+        key={i}
+        className="absolute top-0 confetti"
+        style={{
+          left: `${left}%`,
+          width: `${size}rem`,
+          height: `${size}rem`,
+          backgroundColor: color,
+          animation: `fall ${duration}s ease-in ${delay}s forwards`,
+          transform: `rotate(${Math.random() * 360}deg)`,
+          opacity: Math.random() * 0.4 + 0.6, // random opacity between 0.6-1
+        }}
+      />
+    );
+  });
+
+  return (
+    <div className="fixed inset-0 pointer-events-none">
+      <style jsx global>{`
+        @keyframes fall {
+          0% {
+            transform: translateY(-10vh) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+          }
+        }
+        .confetti {
+          position: absolute;
+          will-change: transform;
+        }
+      `}</style>
+      {particles}
+    </div>
+  );
+};
 
 // Helper component for animated scene content
 const AnimatedSceneContent = ({ children, isVisible }: { children: React.ReactNode, isVisible: boolean }) => {
@@ -26,7 +78,20 @@ const GfDayPage = () => {
   const snapTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // State for "Yes" button outcome (confetti) - will implement later
-  // const [showConfetti, setShowConfetti] = useState(false);
+  const [yesButtonClicked, setYesButtonClicked] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    if (typeof window !== 'undefined') {
+      handleResize(); // Initial size
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
   useEffect(() => {
     // Audio will be triggered by user interaction via overlay
@@ -47,7 +112,7 @@ const GfDayPage = () => {
     );
 
     const currentSceneRefs = sceneRefs.current;
-    if (!showOverlay) { // Only observe if overlay is hidden
+    if (!showOverlay && !noButtonClicked && !yesButtonClicked) { // Only observe if overlays are hidden
       currentSceneRefs.forEach(ref => {
         if (ref) observer.observe(ref);
       });
@@ -61,7 +126,7 @@ const GfDayPage = () => {
         clearTimeout(snapTimeoutRef.current);
       }
     };
-  }, [showOverlay]); // Re-run effect if showOverlay changes
+  }, [showOverlay, noButtonClicked, yesButtonClicked]); // Re-run effect if showOverlay, noButtonClicked, or yesButtonClicked changes
 
   const handleStartExperience = () => {
     if (audioRef.current) {
@@ -75,6 +140,7 @@ const GfDayPage = () => {
 
   const handleNoClick = () => {
     setNoButtonClicked(true);
+    setYesButtonClicked(false); // Ensure yes outcome is hidden
     setCurrentSnapImage('/gfday1/Snap0.PNG');
     setSnapImageOpacity(1); // Snap0 becomes visible immediately
 
@@ -99,8 +165,14 @@ const GfDayPage = () => {
   };
 
   const handleYesClick = () => {
-    alert('She said YES!!! 🎉❤️'); // Placeholder, will add confetti
-    // setShowConfetti(true);
+    setYesButtonClicked(true);
+    setNoButtonClicked(false); // Ensure no outcome is hidden
+    setShowConfetti(true);
+    
+    // Optional: Set a timeout to stop the confetti after a few seconds
+    setTimeout(() => {
+      setShowConfetti(false);
+    }, 5000);
   };
 
   // IMPORTANT: Update width and height for each image to its actual dimensions!
@@ -173,9 +245,29 @@ const GfDayPage = () => {
         </div>
       )}
 
+      {/* "Yes" Button Outcome Overlay */} 
+      {yesButtonClicked && (
+        <div className="fixed inset-0 bg-black bg-opacity-95 flex flex-col justify-center items-center z-40 p-4 text-center">
+          {showConfetti && <Confetti />}
+          <p className="text-3xl md:text-4xl font-playfair-display text-pink-300 my-8 animate-pulse">
+            Congratulations, you unlocked a new boyfriend!
+          </p>
+          <video 
+            src="/gfday1/SWAG.MOV" 
+            controls 
+            autoPlay 
+            loop 
+            muted={false} // Attempt to play with sound, browser might override
+            className="max-w-md md:max-w-lg lg:max-w-xl rounded-lg shadow-xl"
+          >
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      )}
+
       <audio ref={audioRef} src="/gfday1/sedona.mp3" loop />
 
-      {!showOverlay && !noButtonClicked && scenes.map((scene, index) => (
+      {!showOverlay && !noButtonClicked && !yesButtonClicked && scenes.map((scene, index) => (
         <section
           key={scene.id}
           ref={(el: HTMLElement | null) => { sceneRefs.current[index] = el; }}
