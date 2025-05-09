@@ -37,14 +37,13 @@ const calculateAge = (birthDateString: string): string => {
 const statsData: StatItem[] = [
   { label: "Name", value: "Melisa Onder" },
   { label: "Age", value: "2004-08-09", isAge: true },
-  { label: "Height", value: "5' 8\"" },
-  { label: "Breasts", value: "32D", hoverLabel: "Tiddies", hoverValue: "Fat" },
-  { label: "Waist", value: "? inches" },
-  { label: "Hips", value: "? inches" },
-  { label: "Shoe Size", value: "X US" },
+  { label: "Height", value: "173cm\"" },
+  { label: "Bra Size", value: "32D", hoverLabel: "Tiddies", hoverValue: "Fat" },
+  { label: "Waist", value: "25 inches" },
+  { label: "Hips", value: "39 inches" },
+  { label: "Shoe Size", value: "8.5 US" },
   { label: "Hair Color", value: "Brunette" },
   { label: "Eye Color", value: "Brown" },
-  { label: "Title", value: "MILF In Training" },
 ];
 
 const StatsDisplay: React.FC = () => {
