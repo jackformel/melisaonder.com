@@ -101,7 +101,8 @@ const GfDay15Page = () => {
     },
     {
       id: 6,
-      text: "- Love, your hedgehog",
+      text: `Love,
+Your Hedgehog`,
       images: [
         { src: '/gfday1.5/hedgehog-1.jpg', alt: 'Your Hedgehog', width: 3024, height: 4032, fit: 'contain' },
       ],
